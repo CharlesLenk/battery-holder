@@ -20,16 +20,15 @@ height = 20;
 
 symbol_insert_d = symbol_size + 1;
 
+assembly();
 
-
-
-
-symbol_insert();
-// intersection() {
-     base();
-//     cube([20, 20, 30]);
-// }
-
+module assembly() {
+    place_symbols()
+        color("#FFCC33")
+            symbol_insert();
+    color("#333333")
+        base();
+}
 
 module base() {
     difference() {
@@ -43,43 +42,44 @@ module base() {
                 }
             }
         }
+        place_symbols() {
+            plus_sign();
+            minus_sign();
+        }
+        place_symbols()
+            symbol_insert(true);
+    }
+}
 
-        translate([edge_margin + symbol_size/2, edge_margin + top_d/2]) {
-            fix_preview()
-                cylinder(d = symbol_insert_d, h = height - symbol_cut_depth);
-            translate([0, 0, height])
-                plus_sign();
+module place_symbols() {
+    for (i = [0 : rows - 1]) {
+        translate([edge_margin + symbol_size/2, edge_margin + top_d/2 + i * (edge_margin + top_d)]) {
+            if (i < $children)
+                children(i);
+            else
+                children($children - 1);
         }
-        translate([edge_margin + symbol_size/2,  edge_margin + margin + 1.5 * top_d]) {
-            fix_preview()
-                cylinder(d = symbol_insert_d, h = height - symbol_cut_depth);
-            translate([0, 0, height])
-                minus_sign();
-        }
-        translate([base_x - symbol_size/2 - edge_margin, edge_margin + top_d/2]) {
-            fix_preview()
-                cylinder(d = symbol_insert_d, h = height - symbol_cut_depth);
-            translate([0, 0, height])
-                plus_sign();
-        }
-        translate([base_x - symbol_size/2 - edge_margin,  edge_margin + margin + 1.5 * top_d]) {
-            fix_preview()
-                cylinder(d = symbol_insert_d, h = height - symbol_cut_depth);
-            translate([0, 0, height])
-                minus_sign();
+        translate([base_x - symbol_size/2 - edge_margin,  edge_margin + top_d/2 + i * (edge_margin + top_d)]) {
+            if (i < $children)
+                children(i);
+            else
+                children($children - 1);
         }
     }
 }
 
-// module countersink(shaft_diameter, head_size, head_depth, shaft_length = 50, head_length = 50)
-
-module symbol_insert() {
-    h = height - 1.7;
+module symbol_insert(is_cut = false) {
+    h = height - symbol_cut_depth;
     d = symbol_insert_d - 0.15;
-    cap_h = 3;
-    cylinder(d = d, h = h - cap_h);
-    translate([0, 0, h - cap_h])
-        cylinder(d1 = d, d2 = d - 0.5, h = cap_h);
+    cap_h = 2.8;
+    if (is_cut) {
+        fix_preview()
+            cylinder(d = symbol_insert_d, h = h);
+    } else {
+        cylinder(d = d, h = h - cap_h);
+        translate([0, 0, h - cap_h])
+            cylinder(d1 = d, d2 = d - 0.5, h = cap_h);
+    }
 }
 
 module plus_sign() {
@@ -89,13 +89,6 @@ module plus_sign() {
 }
 
 module minus_sign() {
-    translate([0, 0, -symbol_cut_depth/2 + 0.001])
+    translate([0, 0, height - symbol_cut_depth/2 + 0.001])
         cube([symbol_size, symbol_line_width, symbol_cut_depth], center = true);
 }
-
-// difference() {
-// rounded_cube([20, 20, 16.5], d = 15, top_d = 2, bottom_d = 2);
-
-// translate([10, 10, 15 + 1.5])
-// countersink(15, 18, 15, 1);
-// }
