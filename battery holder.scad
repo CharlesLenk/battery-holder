@@ -81,7 +81,7 @@ module symbol_insert(is_cut = false) {
     cap_h = 2.8;
     if (is_cut) {
         fix_preview()
-            cylinder(d = symbol_insert_d, h = h + 0.001);
+            cylinder(d = symbol_insert_d, h = h);
     } else {
         cylinder(d = d, h = h - cap_h);
         translate([0, 0, h - cap_h])
@@ -96,6 +96,6 @@ module plus_sign() {
 }
 
 module minus_sign() {
-    translate([0, 0, height - symbol_cut_depth/2 + 0.001])
+    translate([0, 0, height - symbol_cut_depth/2])
         cube([symbol_size, symbol_line_width, symbol_cut_depth], center = true);
 }
