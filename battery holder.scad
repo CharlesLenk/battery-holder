@@ -2,21 +2,21 @@ include <openscad-utilities/common.scad>
 include <openscad-utilities/arrow.scad>
 
 battery_d = 15;
-top_d = 18;
-
-edge_margin = 2.5;
+countersink_d = 18;
 margin = 1.5;
 
+edge_margin = 2.5;
+
 columns = 4;
-rows = 4;
+rows = 2;
 
 symbol_size = 10;
 symbol_line_width = 2.5;
 symbol_cut_depth = 1;
 symbol_insert_d = symbol_size + 1.5;
 
-base_x = columns * (top_d + margin) + margin + 2 * symbol_insert_d + 2 * edge_margin;
-base_y = rows * top_d + (rows - 1) * margin + 2 * edge_margin;
+base_x = columns * (countersink_d + margin) + margin + 2 * symbol_insert_d + 2 * edge_margin;
+base_y = rows * countersink_d + (rows - 1) * margin + 2 * edge_margin;
 
 height = 20;
 
@@ -41,10 +41,10 @@ module holder() {
     difference() {
         rounded_cube([base_x, base_y, height], d = 25, top_d = 2, bottom_d = 2);
         for (j = [0 : rows - 1]) {
-            translate([0, j * (top_d + margin)]) {
+            translate([0, j * (countersink_d + margin)]) {
                 for (i = [0 : columns - 1]) {
-                    translate([(top_d/2 + margin) + i * (top_d + margin) + symbol_size + edge_margin, top_d/2 + edge_margin, height]) {
-                        countersink(battery_d, top_d, shaft_length = height - 1.5);
+                    translate([(countersink_d/2 + edge_margin) + i * (countersink_d + margin) + symbol_size + edge_margin, countersink_d/2 + edge_margin, height]) {
+                        countersink(battery_d, countersink_d, shaft_length = height - 1.5);
                     }
                 }
             }
@@ -60,13 +60,13 @@ module holder() {
 
 module place_symbols() {
     for (i = [0 : rows - 1]) {
-        translate([edge_margin/2 + symbol_insert_d/2, edge_margin + top_d/2 + i * (margin + top_d)]) {
+        translate([edge_margin + symbol_insert_d/2, edge_margin + countersink_d/2 + i * (margin + countersink_d)]) {
             if (i < $children)
                 children(i);
             else
                 children($children - 1);
         }
-        translate([base_x - symbol_insert_d/2 - edge_margin/2,  edge_margin + top_d/2 + i * (margin + top_d)]) {
+        translate([base_x - symbol_insert_d/2 - edge_margin,  edge_margin + countersink_d/2 + i * (margin + countersink_d)]) {
             if (i < $children)
                 children(i);
             else
