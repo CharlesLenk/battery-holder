@@ -1,4 +1,5 @@
 include <openscad-utilities/common.scad>
+include <openscad-utilities/arrow.scad>
 
 battery_d = 15;
 top_d = 18;
@@ -7,30 +8,36 @@ edge_margin = 2.5;
 margin = 1.5;
 
 columns = 4;
-rows = 2;
+rows = 4;
 
 symbol_size = 10;
 symbol_line_width = 2.5;
 symbol_cut_depth = 1;
+symbol_insert_d = symbol_size + 1.5;
 
-base_x = columns * (top_d + margin) + margin + 2 * symbol_size + 2 * edge_margin;
+base_x = columns * (top_d + margin) + margin + 2 * symbol_insert_d + 2 * edge_margin;
 base_y = rows * top_d + (rows - 1) * margin + 2 * edge_margin;
 
 height = 20;
 
-symbol_insert_d = symbol_size + 1;
+assembly(true);
 
-assembly();
-
-module assembly() {
-    place_symbols()
-        color("#FFCC33")
-            symbol_insert();
+module assembly(explode = false) {
     color("#333333")
-        base();
+        holder();
+    place_symbols() {
+        union() {
+            if (explode)
+                rotate([-90, 0, 45])
+                    arrow(8);
+            translate([0, 0, explode ? -35 : 0])
+                color("#FFCC33")
+                    symbol_insert();
+        }
+    }
 }
 
-module base() {
+module holder() {
     difference() {
         rounded_cube([base_x, base_y, height], d = 25, top_d = 2, bottom_d = 2);
         for (j = [0 : rows - 1]) {
@@ -53,13 +60,13 @@ module base() {
 
 module place_symbols() {
     for (i = [0 : rows - 1]) {
-        translate([edge_margin + symbol_size/2, edge_margin + top_d/2 + i * (edge_margin + top_d)]) {
+        translate([edge_margin/2 + symbol_insert_d/2, edge_margin + top_d/2 + i * (margin + top_d)]) {
             if (i < $children)
                 children(i);
             else
                 children($children - 1);
         }
-        translate([base_x - symbol_size/2 - edge_margin,  edge_margin + top_d/2 + i * (edge_margin + top_d)]) {
+        translate([base_x - symbol_insert_d/2 - edge_margin/2,  edge_margin + top_d/2 + i * (margin + top_d)]) {
             if (i < $children)
                 children(i);
             else
@@ -74,7 +81,7 @@ module symbol_insert(is_cut = false) {
     cap_h = 2.8;
     if (is_cut) {
         fix_preview()
-            cylinder(d = symbol_insert_d, h = h);
+            cylinder(d = symbol_insert_d, h = h + 0.001);
     } else {
         cylinder(d = d, h = h - cap_h);
         translate([0, 0, h - cap_h])
