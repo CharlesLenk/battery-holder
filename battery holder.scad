@@ -7,7 +7,7 @@ margin = 1.5;
 
 edge_margin = 2.5;
 
-columns = 6;
+default_columns = 6;
 rows = 2;
 height = 20;
 
@@ -17,8 +17,6 @@ symbol_cut_depth = 1;
 symbol_insert_d = symbol_size + 1.5;
 symbol_insert_cut_h = height - symbol_cut_depth;
 symbol_insert_h = symbol_insert_cut_h - 0.4;
-
-default_columns = 6;
 
 function get_holder_x(columns) = columns * (countersink_d + margin) + margin + 2 * symbol_insert_d + 2 * edge_margin;
 
@@ -65,17 +63,19 @@ module holder(columns) {
 module place_symbols(columns) {
     holder_x = get_holder_x(columns);
     for (i = [0 : rows - 1]) {
-        translate([edge_margin + symbol_insert_d/2, edge_margin + countersink_d/2 + i * (margin + countersink_d)]) {
-            if (i < $children)
-                children(i);
-            else
-                children($children - 1);
-        }
-        translate([holder_x - symbol_insert_d/2 - edge_margin,  edge_margin + countersink_d/2 + i * (margin + countersink_d)]) {
-            if (i < $children)
-                children(i);
-            else
-                children($children - 1);
+        translate([0, edge_margin + countersink_d/2 + i * (margin + countersink_d)]) {
+            translate([edge_margin + symbol_insert_d/2, 0]) {
+                if (i < rows/2 || $children == 1)
+                    children(0);
+                else
+                    children(1);
+            }
+            translate([holder_x - symbol_insert_d/2 - edge_margin, 0]) {
+                if (i < rows/2 || $children == 1)
+                    children(0);
+                else
+                    children(1);
+            }
         }
     }
 }
