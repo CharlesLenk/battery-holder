@@ -7,26 +7,26 @@ margin = 1.5;
 
 edge_margin = 2.5;
 
-columns = 4;
+default_columns = 6;
 rows = 2;
+height = 20;
 
 symbol_size = 10;
 symbol_line_width = 2.5;
 symbol_cut_depth = 1;
 symbol_insert_d = symbol_size + 1.5;
+symbol_insert_cut_h = height - symbol_cut_depth;
+symbol_insert_h = symbol_insert_cut_h - 0.4;
 
-base_x = columns * (countersink_d + margin) + margin + 2 * symbol_insert_d + 2 * edge_margin;
-base_y = rows * countersink_d + (rows - 1) * margin + 2 * edge_margin;
+function get_holder_x(columns) = columns * (countersink_d + margin) + margin + 2 * symbol_insert_d + 2 * edge_margin;
 
-height = 20;
+assembly();
 
-assembly(true);
-
-module assembly(explode = false) {
+module assembly(columns = default_columns, explode = false) {
     color("#333333")
-        holder();
-    place_symbols() {
-        union() {
+        holder(columns);
+    place_symbols(columns) {
+        translate([0, 0, symbol_insert_cut_h - symbol_insert_h]) {
             if (explode)
                 rotate([-90, 0, 45])
                     arrow(8);
@@ -37,9 +37,11 @@ module assembly(explode = false) {
     }
 }
 
-module holder() {
+module holder(columns) {
+    holder_x = get_holder_x(columns);
+    holder_y = rows * countersink_d + (rows - 1) * margin + 2 * edge_margin;
     difference() {
-        rounded_cube([base_x, base_y, height], d = 25, top_d = 2, bottom_d = 2);
+        rounded_cube([holder_x, holder_y, height], d = 25, top_d = 2, bottom_d = 2);
         for (j = [0 : rows - 1]) {
             translate([0, j * (countersink_d + margin)]) {
                 for (i = [0 : columns - 1]) {
@@ -49,42 +51,44 @@ module holder() {
                 }
             }
         }
-        place_symbols() {
+        place_symbols(columns) {
             plus_sign();
             minus_sign();
         }
-        place_symbols()
+        place_symbols(columns)
             symbol_insert(true);
     }
 }
 
-module place_symbols() {
+module place_symbols(columns) {
+    holder_x = get_holder_x(columns);
     for (i = [0 : rows - 1]) {
-        translate([edge_margin + symbol_insert_d/2, edge_margin + countersink_d/2 + i * (margin + countersink_d)]) {
-            if (i < $children)
-                children(i);
-            else
-                children($children - 1);
-        }
-        translate([base_x - symbol_insert_d/2 - edge_margin,  edge_margin + countersink_d/2 + i * (margin + countersink_d)]) {
-            if (i < $children)
-                children(i);
-            else
-                children($children - 1);
+        translate([0, edge_margin + countersink_d/2 + i * (margin + countersink_d)]) {
+            translate([edge_margin + symbol_insert_d/2, 0]) {
+                if (i < rows/2 || $children == 1)
+                    children(0);
+                else
+                    children(1);
+            }
+            translate([holder_x - symbol_insert_d/2 - edge_margin, 0]) {
+                if (i < rows/2 || $children == 1)
+                    children(0);
+                else
+                    children(1);
+            }
         }
     }
 }
 
 module symbol_insert(is_cut = false) {
-    h = height - symbol_cut_depth;
-    d = symbol_insert_d - 0.15;
-    cap_h = 2.8;
     if (is_cut) {
         fix_preview()
-            cylinder(d = symbol_insert_d, h = h);
+            cylinder(d = symbol_insert_d, h = symbol_insert_cut_h);
     } else {
-        cylinder(d = d, h = h - cap_h);
-        translate([0, 0, h - cap_h])
+        d = symbol_insert_d - 0.15;
+        cap_h = 2.8;
+        cylinder(d = d, h = symbol_insert_h - cap_h);
+        translate([0, 0, symbol_insert_h - cap_h])
             cylinder(d1 = d, d2 = d - 0.5, h = cap_h);
     }
 }
