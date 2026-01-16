@@ -20,7 +20,7 @@ symbol_insert_h = symbol_insert_cut_h - 0.4;
 
 function get_holder_x(columns) = columns * (countersink_d + margin) + margin + 2 * symbol_insert_d + 2 * edge_margin;
 
-assembly();
+assembly(explode = true);
 
 module assembly(columns = default_columns, explode = false) {
     color("#333333")
