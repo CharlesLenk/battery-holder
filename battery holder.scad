@@ -1,10 +1,11 @@
 include <openscad-utilities/common.scad>
 include <openscad-utilities/arrow.scad>
 
-battery_d = 15;
-countersink_d = 18;
-margin = 1.5;
+battery_offset = 0.5;
+AA_battery_d = 14.5;
+AAA_battery_d = 10.5;
 
+battery_slot_margin = 1.5;
 edge_margin = 2.5;
 
 default_columns = 6;
@@ -18,14 +19,23 @@ symbol_insert_d = symbol_size + 1.5;
 symbol_insert_cut_h = height - symbol_cut_depth;
 symbol_insert_h = symbol_insert_cut_h - 0.4;
 
-function get_holder_x(columns) = columns * (countersink_d + margin) + margin + 2 * symbol_insert_d + 2 * edge_margin;
+countersink_offset = 3;
 
-assembly();
+function get_battery_d(battery_type) =
+    (
+        battery_type == "AA" ? AA_battery_d : 
+        battery_type == "AAA" ? AAA_battery_d : 
+        0
+    ) + battery_offset;
+function get_countersink_d(battery_type) = get_battery_d(battery_type) + countersink_offset;
+function get_holder_x(columns, battery_type) = columns * (get_countersink_d(battery_type) + battery_slot_margin) + battery_slot_margin + 2 * symbol_insert_d + 2 * edge_margin;
 
-module assembly(columns = default_columns, explode = false) {
+assembly(battery_type = "AA");
+
+module assembly(columns = default_columns, battery_type = default_battery_type, explode = false) {
     color("#333333")
-        holder(columns);
-    place_symbols(columns) {
+        holder(columns, battery_type);
+    place_symbols(columns, battery_type) {
         translate([0, 0, symbol_insert_cut_h - symbol_insert_h]) {
             if (explode)
                 rotate([-90, 0, 45])
@@ -37,33 +47,37 @@ module assembly(columns = default_columns, explode = false) {
     }
 }
 
-module holder(columns) {
-    holder_x = get_holder_x(columns);
-    holder_y = rows * countersink_d + (rows - 1) * margin + 2 * edge_margin;
+module holder(columns, battery_type = default_battery_type) {
+    assert(battery_type == "AA" || battery_type == "AAA", "Battery type must be AA or AAA");
+    battery_d = get_battery_d(battery_type);
+    countersink_d = get_countersink_d(battery_type);
+    holder_x = get_holder_x(columns, battery_type);
+    holder_y = rows * countersink_d + (rows - 1) * battery_slot_margin + 2 * edge_margin;
     difference() {
         rounded_cube([holder_x, holder_y, height], d = 25, top_d = 2, bottom_d = 2);
         for (j = [0 : rows - 1]) {
-            translate([0, j * (countersink_d + margin)]) {
+            translate([0, j * (countersink_d + battery_slot_margin)]) {
                 for (i = [0 : columns - 1]) {
-                    translate([(countersink_d/2 + edge_margin) + i * (countersink_d + margin) + symbol_size + edge_margin, countersink_d/2 + edge_margin, height]) {
+                    translate([(countersink_d/2 + edge_margin) + i * (countersink_d + battery_slot_margin) + symbol_size + edge_margin, countersink_d/2 + edge_margin, height]) {
                         countersink(battery_d, countersink_d, shaft_length = height - 1.5);
                     }
                 }
             }
         }
-        place_symbols(columns) {
+        place_symbols(columns, battery_type) {
             plus_sign();
             minus_sign();
         }
-        place_symbols(columns)
+        place_symbols(columns, battery_type)
             symbol_insert(true);
     }
 }
 
-module place_symbols(columns) {
-    holder_x = get_holder_x(columns);
+module place_symbols(columns, battery_type) {
+    countersink_d = get_countersink_d(battery_type);
+    holder_x = get_holder_x(columns, battery_type);
     for (i = [0 : rows - 1]) {
-        translate([0, edge_margin + countersink_d/2 + i * (margin + countersink_d)]) {
+        translate([0, edge_margin + countersink_d/2 + i * (battery_slot_margin + countersink_d)]) {
             translate([edge_margin + symbol_insert_d/2, 0]) {
                 if (i < rows/2 || $children == 1)
                     children(0);
