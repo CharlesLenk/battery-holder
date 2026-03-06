@@ -2,9 +2,10 @@
 
 This battery holder helps organize AA rechargable batteries. It has one row for charged batteries represented by a "+" sign, and one for negative batteries represented by a "-" sign.
 
+![](images/with_batteries.jpg)
 |||
 |-|-|
-|![](images/image.jpg)|![](images/image.jpg)|
+|![](images/top.jpg)|![](images/bottom.jpg)|
 
 # Printing
 
