@@ -23,8 +23,8 @@ countersink_offset = 3;
 
 function get_battery_d(battery_type) =
     (
-        battery_type == "AA" ? AA_battery_d : 
-        battery_type == "AAA" ? AAA_battery_d : 
+        battery_type == "AA" ? AA_battery_d :
+        battery_type == "AAA" ? AAA_battery_d :
         0
     ) + battery_offset;
 function get_countersink_d(battery_type) = get_battery_d(battery_type) + countersink_offset;
