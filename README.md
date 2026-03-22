@@ -1,32 +1,32 @@
 # Battery Holder
 
-This battery holder helps organize AA rechargable batteries. It has one row for charged batteries represented by a "+" sign, and one for negative batteries represented by a "-" sign.
+This battery holder helps organize rechargeable batteries. It has one row for charged batteries represented by a "+" sign, and one for negative batteries represented by a "-" sign. Both AA and AAA batteries are supported through different models.
 
 ![](images/with_batteries.jpg)
 |||
 |-|-|
 |![](images/top.jpg)|![](images/bottom.jpg)|
 
-# Printing
+## Printing
 
 Any filament can be used for printing this project. The models are designed to be printed on a standard consumer grade FDM printer with a 0.4mm nozzle.
 
 For each battery holder, print four symbol inserts.
 
-# Models in this Project
+## Assembly
+
+Push the symbol inserts into the base with the end that was on the print bed facing down. The inserts should fit snugly, but not take an uncomfortable amount of pressure to push all the way in.
+
+![](images/assembly.png)
+
+## Models in this Project
 
 |Image|Name|File|Description|
 |-|-|-|-|
 |![](images/holder_model.png)|`battery holder`|`battery holder.scad`|The battery holder.|
 |![](images/insert_model.png)|`symbol insert`|`battery holder.scad`|An insert for the +/- symbols that allows for a different color than the holder body.|
 
-# Assembly
-
-Push the symbol inserts into the base with the end that was on the print bed facing down. The inserts should fit snugly, but not take an uncomfortable amount of pressure to push all the way in.
-
-![](images/assembly.png)
-
-# Project Setup
+# Project Setup for Local Editing
 
 Everything below this point is only relevant if you want to download this project and make edits.
 
